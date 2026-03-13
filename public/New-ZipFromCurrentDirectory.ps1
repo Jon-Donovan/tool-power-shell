@@ -1,4 +1,4 @@
-function New-ZipFromCurrentDirectory {
+﻿function New-ZipFromCurrentDirectory {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]

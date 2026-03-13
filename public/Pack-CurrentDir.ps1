@@ -1,4 +1,4 @@
-function Pack-CurrentDir {
+﻿function Pack-CurrentDir {
     param(
         [Parameter(Mandatory=$true)][string]$TargetDirectory,
         [Parameter(Mandatory=$true)][string]$ArchivePath
