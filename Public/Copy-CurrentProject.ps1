@@ -58,19 +58,11 @@ function Copy-CurrentProject {
             }
         }
 
-        Get-ChildItem -Path $SourceDirectory -Force | ForEach-Object {
-            $relative = $_.Name
-
-            if (Test-Excluded -RelativePath $relative -Name $_.Name -Patterns $Exclude) {
-                return
-            }
-
-            Copy-ProjectItem `
-                -Item $_ `
-                -SourceRoot $SourceDirectory `
-                -TargetRoot $TargetDirectory `
-                -Exclude $Exclude
-        }
+        Copy-ProjectItem `
+            -Item (Get-Item -LiteralPath $SourceDirectory) `
+            -SourceRoot $SourceDirectory `
+            -TargetRoot $TargetDirectory `
+            -Exclude $Exclude
 
         [pscustomobject]@{
             SourceDirectory      = $SourceDirectory

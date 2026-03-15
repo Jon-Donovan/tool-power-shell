@@ -6,28 +6,38 @@
     {
       "name": "date",
       "type": "date",
-      "arg": ["yyyy-MM-dd"]
+      "arg": [
+        "yyyy-MM-dd"
+      ]
     },
     {
       "name": "time",
       "type": "time",
-      "arg": ["HH-mm-ss"]
+      "arg": [
+        "HH-mm-ss"
+      ]
     },
-{
-  "name": "datetime",
-  "type": "datetime",
-  "arg": ["yyyy-MM-dd_HH-mm-ss"]
-},
-{
-  "name": "ts",
-  "type": "timestamp",
-  "arg": ["yyyyMMddHHmmss"]
-},
     {
-  "name": "user",
-  "type": "env",
-  "arg": ["USERNAME"]
-},
+      "name": "datetime",
+      "type": "datetime",
+      "arg": [
+        "yyyy-MM-dd_HH-mm-ss"
+      ]
+    },
+    {
+      "name": "ts",
+      "type": "timestamp",
+      "arg": [
+        "yyyyMMddHHmmss"
+      ]
+    },
+    {
+      "name": "user",
+      "type": "env",
+      "arg": [
+        "USERNAME"
+      ]
+    },
     {
       "name": "projectname",
       "type": "projectname"
@@ -42,33 +52,25 @@
     }
   ],
   "Exclude": [
-    "compress.config.json",
-    ".git",
-    ".git\\*",
-    ".venv",
-    ".venv\\*",
-    "venv",
-    "venv\\*",
-    "__pycache__",
-    "__pycache__\\*",
-    ".pytest_cache",
-    ".pytest_cache\\*",
-    ".mypy_cache",
-    ".mypy_cache\\*",
-    ".ruff_cache",
-    ".ruff_cache\\*",
-    ".idea",
-    ".idea\\*",
-    ".vscode",
-    ".vscode\\*",
-    "build",
-    "build\\*",
-    "dist",
-    "dist\\*",
+    "\\.compress.config.json",
+    "\\.gitignore",
+    "\\.editorconfig",
+    "\\.gitattributes",
+    "\\.git\\*",
+    "\\.venv\\*",
+    "\\venv\\*",
+    "*\\__pycache__\\*",
+    "\\.pytest_cache\\*",
+    "\\.mypy_cache\\*",
+    "\\.ruff_cache\\*",
+    "\\.idea\\*",
+    "\\.vscode\\*",
+    "\\build\\*",
+    "\\dist\\*",
     "*.pyc",
     "*.pyo",
     "*.pyd",
     "*.log",
-    ".DS_Store"
+    "\\.DS_Store"
   ]
 }

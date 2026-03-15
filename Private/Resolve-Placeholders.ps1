@@ -1,6 +1,7 @@
 ﻿function Resolve-Placeholders {
     param(
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [string]$Text,
 
         [Parameter(Mandatory = $false)]

@@ -80,7 +80,7 @@ function Compress-CurrentProject {
                         $filePath = Get-NormalizedFilePath -Path $_.FullName
                         $relativePath = $filePath.Substring($SourceDirectory.Length).TrimStart('\')
 
-                        if (Test-Excluded -RelativePath $relativePath -Name $_.Name -Patterns $Exclude) {
+                        if (Test-Excluded -RelativePath $relativePath -Patterns $Exclude) {
                             return
                         }
 

@@ -1,4 +1,4 @@
-function Copy-ProjectItem {
+﻿function Copy-ProjectItem {
     param(
         [Parameter(Mandatory)]$Item,
         [Parameter(Mandatory)][string]$SourceRoot,
@@ -7,10 +7,23 @@ function Copy-ProjectItem {
     )
 
     $fullName = [System.IO.Path]::GetFullPath($Item.FullName)
-    $relative = $fullName.Substring($SourceRoot.Length).TrimStart('\')
-    $targetPath = Join-Path $TargetRoot $relative
+    $sourceRootFull = [System.IO.Path]::GetFullPath($SourceRoot)
 
-    if (Test-Excluded -RelativePath $relative -Name $Item.Name -Patterns $Exclude) {
+    $relative = $fullName.Substring($sourceRootFull.Length).TrimStart('\')
+
+    if ([string]::IsNullOrEmpty($relative)) {
+        $targetPath = $TargetRoot
+    }
+    else {
+        $targetPath = Join-Path $TargetRoot $relative
+    }
+
+    $suff = ""
+    if ($Item.PSIsContainer) {
+        $suff = "/"
+    }
+
+    if (-not [string]::IsNullOrEmpty($relative) -and (Test-Excluded -RelativePath $relative$suff -Patterns $Exclude)) {
         return
     }
 
@@ -18,7 +31,7 @@ function Copy-ProjectItem {
         New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
 
         Get-ChildItem -Path $Item.FullName -Force | ForEach-Object {
-            Copy-ProjectItem -Item $_ -SourceRoot $SourceRoot -TargetRoot $TargetRoot -Exclude $Exclude
+            Copy-ProjectItem -Item $_ -SourceRoot $sourceRootFull -TargetRoot $TargetRoot -Exclude $Exclude
         }
     }
     else {
