@@ -1,4 +1,4 @@
-function Resolve-Placeholders {
+﻿function Resolve-Placeholders {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Text,

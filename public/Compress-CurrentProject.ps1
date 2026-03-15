@@ -1,4 +1,4 @@
-﻿function Compress-CurrentProject {
+function Compress-CurrentProject {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
         [string]$SourceDirectory = (Get-Location).Path,
@@ -12,24 +12,13 @@
         $ConfigPath = Join-Path $SourceDirectory $ConfigFileName
 
         if (-not (Test-Path $ConfigPath -PathType Leaf)) {
-            throw "Файл конфигурации не найден: $ConfigPath"
+            throw "Config file not found: $ConfigPath"
         }
 
-        $config = Get-Content $ConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
-
-        if ([string]::IsNullOrWhiteSpace($config.TargetDirectory)) {
-            throw "В конфиге не указан TargetDirectory"
-        }
+        $config = Get-Content -Path $ConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
         if ([string]::IsNullOrWhiteSpace($config.ArchivePath)) {
-            throw "В конфиге не указан ArchivePath"
-        }
-
-        $TargetDirectory = if ([System.IO.Path]::IsPathRooted($config.TargetDirectory)) {
-            $config.TargetDirectory
-        }
-        else {
-            Join-Path $SourceDirectory $config.TargetDirectory
+            throw "ArchivePath is not specified in config"
         }
 
         $archivePathTemplate = Resolve-Placeholders -Text $config.ArchivePath -PlaceHolders $config.PlaceHolders
@@ -41,93 +30,84 @@
             Join-Path $SourceDirectory $archivePathTemplate
         }
 
-        $CleanTargetDirectory = [bool]$config.CleanTargetDirectory
-        $Exclude = @($config.Exclude)
-
         $SourceDirectory = Get-NormalizedDirectoryPath -Path $SourceDirectory
-        $TargetDirectory = Get-NormalizedDirectoryPath -Path $TargetDirectory
         $ArchivePath = Get-NormalizedFilePath -Path $ArchivePath
-
-        if ($TargetDirectory.Equals($SourceDirectory, [System.StringComparison]::OrdinalIgnoreCase)) {
-            throw "TargetDirectory не должна совпадать с SourceDirectory"
-        }
-
-        if (Test-PathInsideDirectory -ChildPath $TargetDirectory -ParentDirectory $SourceDirectory) {
-            throw "TargetDirectory не должна находиться внутри SourceDirectory"
-        }
-
-        Test-ArchivePathConflicts `
-            -ArchivePath $ArchivePath `
-            -SourceDirectory $SourceDirectory `
-            -TargetDirectory $TargetDirectory
+        $Exclude = @($config.Exclude)
 
         $archiveParent = Split-Path -Path $ArchivePath -Parent
         if ([string]::IsNullOrWhiteSpace($archiveParent)) {
-            throw "Не удалось определить директорию для архива"
+            throw "Failed to determine archive parent directory"
         }
 
         $archiveParent = Get-NormalizedDirectoryPath -Path $archiveParent
 
-        if (-not (Test-Path $TargetDirectory -PathType Container)) {
-            if ($PSCmdlet.ShouldProcess($TargetDirectory, 'Создать целевую директорию')) {
-                New-Item -ItemType Directory -Path $TargetDirectory -Force | Out-Null
-            }
-        }
+        Test-ArchivePathConflicts `
+            -ArchivePath $ArchivePath `
+            -SourceDirectory $SourceDirectory
 
         if (-not (Test-Path $archiveParent -PathType Container)) {
-            if ($PSCmdlet.ShouldProcess($archiveParent, 'Создать директорию для архива')) {
+            if ($PSCmdlet.ShouldProcess($archiveParent, 'Create archive directory')) {
                 New-Item -ItemType Directory -Path $archiveParent -Force | Out-Null
             }
         }
 
-        if ($CleanTargetDirectory -and (Test-Path $TargetDirectory -PathType Container)) {
-            Assert-SafeTargetDirectoryForCleanup `
-                -TargetDirectory $TargetDirectory `
-                -SourceDirectory $SourceDirectory
-
-            if ($PSCmdlet.ShouldProcess($TargetDirectory, 'Очистить целевую директорию')) {
-                Get-ChildItem -Path $TargetDirectory -Force | Remove-Item -Recurse -Force
-            }
-        }
-
-        Get-ChildItem -Path $SourceDirectory -Force | ForEach-Object {
-            $relative = $_.Name
-
-            if (Test-Excluded -RelativePath $relative -Name $_.Name -Patterns $Exclude) {
-                return
-            }
-
-            Copy-ProjectItem `
-                -Item $_ `
-                -SourceRoot $SourceDirectory `
-                -TargetRoot $TargetDirectory `
-                -Exclude $Exclude
-        }
-
         if (Test-Path $ArchivePath -PathType Leaf) {
-            if ($PSCmdlet.ShouldProcess($ArchivePath, 'Удалить существующий архив')) {
+            if ($PSCmdlet.ShouldProcess($ArchivePath, 'Remove existing archive')) {
                 Remove-Item -Path $ArchivePath -Force
             }
         }
 
+        Add-Type -AssemblyName System.IO.Compression
         Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-        if ($PSCmdlet.ShouldProcess($ArchivePath, "Создать ZIP-архив из $TargetDirectory")) {
-            [System.IO.Compression.ZipFile]::CreateFromDirectory(
-                $TargetDirectory,
+        if ($PSCmdlet.ShouldProcess($ArchivePath, "Create ZIP archive from $SourceDirectory")) {
+            $fileStream = [System.IO.File]::Open(
                 $ArchivePath,
-                [System.IO.Compression.CompressionLevel]::Optimal,
-                $false
+                [System.IO.FileMode]::Create,
+                [System.IO.FileAccess]::ReadWrite,
+                [System.IO.FileShare]::None
             )
+
+            try {
+                $zipArchive = [System.IO.Compression.ZipArchive]::new(
+                    $fileStream,
+                    [System.IO.Compression.ZipArchiveMode]::Create,
+                    $false
+                )
+
+                try {
+                    Get-ChildItem -Path $SourceDirectory -Recurse -Force -File | ForEach-Object {
+                        $filePath = Get-NormalizedFilePath -Path $_.FullName
+                        $relativePath = $filePath.Substring($SourceDirectory.Length).TrimStart('\')
+
+                        if (Test-Excluded -RelativePath $relativePath -Name $_.Name -Patterns $Exclude) {
+                            return
+                        }
+
+                        $entryPath = $relativePath -replace '\\', '/'
+
+                        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                            $zipArchive,
+                            $filePath,
+                            $entryPath,
+                            [System.IO.Compression.CompressionLevel]::Optimal
+                        ) | Out-Null
+                    }
+                }
+                finally {
+                    $zipArchive.Dispose()
+                }
+            }
+            finally {
+                $fileStream.Dispose()
+            }
         }
 
         [pscustomobject]@{
-            SourceDirectory      = $SourceDirectory
-            ConfigPath           = $ConfigPath
-            TargetDirectory      = $TargetDirectory
-            ArchivePath          = $ArchivePath
-            CleanTargetDirectory = $CleanTargetDirectory
-            Exclude              = $Exclude
+            SourceDirectory = $SourceDirectory
+            ConfigPath      = $ConfigPath
+            ArchivePath     = $ArchivePath
+            Exclude         = $Exclude
         }
     }
     catch {

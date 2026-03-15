@@ -1,4 +1,4 @@
-function Test-PathInsideDirectory {
+﻿function Test-PathInsideDirectory {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]

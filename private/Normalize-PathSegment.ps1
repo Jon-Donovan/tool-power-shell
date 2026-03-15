@@ -1,4 +1,4 @@
-function Normalize-PathSegment {
+﻿function Normalize-PathSegment {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Value

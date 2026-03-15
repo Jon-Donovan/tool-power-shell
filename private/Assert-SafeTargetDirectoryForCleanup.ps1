@@ -1,4 +1,4 @@
-function Assert-SafeTargetDirectoryForCleanup {
+﻿function Assert-SafeTargetDirectoryForCleanup {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]

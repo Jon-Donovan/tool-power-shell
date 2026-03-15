@@ -1,4 +1,4 @@
-function Test-Excluded {
+﻿function Test-Excluded {
     [CmdletBinding()]
     param(
         [string]$RelativePath,

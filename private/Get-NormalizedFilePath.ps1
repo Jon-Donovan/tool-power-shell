@@ -1,4 +1,4 @@
-function Get-NormalizedFilePath {
+﻿function Get-NormalizedFilePath {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]

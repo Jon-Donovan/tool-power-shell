@@ -10,31 +10,7 @@ function Copy-ProjectItem {
     $relative = $fullName.Substring($SourceRoot.Length).TrimStart('\')
     $targetPath = Join-Path $TargetRoot $relative
 
-    function Test-ExcludedLocal {
-        param(
-            [string]$RelativePath,
-            [string]$Name,
-            [string[]]$Patterns
-        )
-
-        $normalized = $RelativePath -replace '/', '\'
-
-        foreach ($pattern in $Patterns) {
-            if (
-            $Name -like $pattern -or
-                    $normalized -like $pattern -or
-                    $normalized -like "*\$pattern" -or
-                    $normalized -like "*\$pattern\*" -or
-                    $normalized -like "*$pattern*"
-            ) {
-                return $true
-            }
-        }
-
-        return $false
-    }
-
-    if (Test-ExcludedLocal -RelativePath $relative -Name $Item.Name -Patterns $Exclude) {
+    if (Test-Excluded -RelativePath $relative -Name $Item.Name -Patterns $Exclude) {
         return
     }
 

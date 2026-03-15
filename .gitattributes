@@ -1,0 +1,100 @@
+############################
+# 1) БАЗОВОЕ ПРАВИЛО
+############################
+# Автоопределение текста + нормализация в репозитории.
+# LF в репозитории — максимально универсально для Linux/macOS/CI.
+* text=auto eol=lf
+
+############################
+# 2) ЯВНО ТЕКСТ (на всякий случай)
+############################
+# Скрипты/код
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.zsh       text eol=lf
+*.py        text eol=lf
+*.pyi       text eol=lf
+*.php       text eol=lf
+*.js        text eol=lf
+*.ts        text eol=lf
+*.css       text eol=lf
+*.html      text eol=lf
+
+# Конфиги/данные
+*.json      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.xml       text eol=lf
+*.xsd       text eol=lf
+*.md        text eol=lf
+*.txt       text eol=lf
+*.ini       text eol=lf
+*.cfg       text eol=lf
+*.conf      text eol=lf
+*.toml      text eol=lf
+*.env       text eol=lf
+.env.*      text eol=lf
+
+# БД/миграции
+*.sql       text eol=lf
+
+# Часто встречается в PHP/Yii2 проектах
+*.twig      text eol=lf
+*.tpl       text eol=lf
+
+# Типичные исполняемые файлы Yii2 (если лежат в репо)
+yii         text eol=lf
+yii_test    text eol=lf
+
+# Docker/Make
+Dockerfile  text eol=lf
+Makefile    text eol=lf
+
+############################
+# 3) LOCK-ФАЙЛЫ (текстовые, должны диффиться)
+############################
+composer.lock      text eol=lf
+package-lock.json  text eol=lf
+yarn.lock          text eol=lf
+poetry.lock        text eol=lf
+Pipfile.lock       text eol=lf
+
+############################
+# 4) WINDOWS-СКРИПТЫ (CRLF удобно для cmd.exe)
+############################
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+############################
+# 5) БИНАРНЫЕ ФАЙЛЫ
+############################
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.7z   binary
+*.gz   binary
+*.tgz  binary
+*.rar  binary
+
+# Шрифты
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+
+# Бинарные артефакты
+*.exe   binary
+*.dll   binary
+*.so    binary
+*.dylib binary
+*.class binary
+*.jar   binary
+
+# Локализации (часто бинарные)
+*.mo   binary
