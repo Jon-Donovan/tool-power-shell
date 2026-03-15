@@ -1,4 +1,4 @@
-﻿function Pack-CurrentDir {
+﻿function Compress-CurrentDirectory {
     param(
         [Parameter(Mandatory=$true)][string]$TargetDirectory,
         [Parameter(Mandatory=$true)][string]$ArchivePath

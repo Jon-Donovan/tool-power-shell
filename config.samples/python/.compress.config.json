@@ -1,0 +1,74 @@
+{
+  "TargetDirectory": "..\\_build\\my_python_project",
+  "ArchivePath": "..\\_dist\\my_python_project.zip",
+  "CleanTargetDirectory": false,
+  "PlaceHolders": [
+    {
+      "name": "date",
+      "type": "date",
+      "arg": ["yyyy-MM-dd"]
+    },
+    {
+      "name": "time",
+      "type": "time",
+      "arg": ["HH-mm-ss"]
+    },
+{
+  "name": "datetime",
+  "type": "datetime",
+  "arg": ["yyyy-MM-dd_HH-mm-ss"]
+},
+{
+  "name": "ts",
+  "type": "timestamp",
+  "arg": ["yyyyMMddHHmmss"]
+},
+    {
+  "name": "user",
+  "type": "env",
+  "arg": ["USERNAME"]
+},
+    {
+      "name": "projectname",
+      "type": "projectname"
+    },
+    {
+      "name": "branch",
+      "type": "git-branch"
+    },
+    {
+      "name": "commit",
+      "type": "git-commit-short"
+    }
+  ],
+  "Exclude": [
+    "compress.config.json",
+    ".git",
+    ".git\\*",
+    ".venv",
+    ".venv\\*",
+    "venv",
+    "venv\\*",
+    "__pycache__",
+    "__pycache__\\*",
+    ".pytest_cache",
+    ".pytest_cache\\*",
+    ".mypy_cache",
+    ".mypy_cache\\*",
+    ".ruff_cache",
+    ".ruff_cache\\*",
+    ".idea",
+    ".idea\\*",
+    ".vscode",
+    ".vscode\\*",
+    "build",
+    "build\\*",
+    "dist",
+    "dist\\*",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
+    "*.log",
+    ".DS_Store"
+  ]
+}
