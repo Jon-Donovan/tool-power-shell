@@ -1,0 +1,13 @@
+{
+  "TargetDirectory": "..\\_build\\my_project",
+  "ArchivePath": "..\\_dist\\my_project.zip",
+  "CleanTargetDirectory": true,
+  "Exclude": [
+    "\\.git\\*",
+    "\\.idea\\*",
+    "\\.gitignore",
+    "\\.editorconfig",
+    "\\.gitattributes",
+    "\\.compress.config.json"
+  ]
+}
