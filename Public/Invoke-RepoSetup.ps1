@@ -1,7 +1,7 @@
 ﻿function Invoke-RepoSetup {
     [CmdletBinding()]
     param(
-        [string]$ConfigPath = ".\config.json"
+        [string]$ConfigPath = (Join-Path $PSScriptRoot "config.json")
     )
 
     if (-not (Test-Path $ConfigPath)) {
