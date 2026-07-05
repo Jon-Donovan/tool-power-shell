@@ -1,7 +1,7 @@
 ﻿function Invoke-RepoSetup {
     [CmdletBinding()]
     param(
-        [string]$ConfigPath = (Join-Path $PSScriptRoot "config.json")
+        [string]$ConfigPath = (Join-Path (Split-Path $PSScriptRoot -Parent) "config.json")
     )
 
     if (-not (Test-Path $ConfigPath)) {
@@ -9,7 +9,7 @@
     }
 
     $config = Get-Content $ConfigPath -Raw | ConvertFrom-Json
-    $scriptPath = $config.SetupRepoScriptPath
+    $scriptPath = $config.InvokeRepoSetup.SetupRepoScriptPath
 
     if (-not $scriptPath) {
         throw "В конфиге не задан SetupRepoScriptPath"

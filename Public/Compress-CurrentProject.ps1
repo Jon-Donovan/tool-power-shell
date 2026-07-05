@@ -1,6 +1,7 @@
-function Compress-CurrentProject {
+﻿function Compress-CurrentProject {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
+        [string]$ConfigBase = (Join-Path (Split-Path $PSScriptRoot -Parent) "config.json"),
         [string]$SourceDirectory = (Get-Location).Path,
         [string]$ConfigFileName = '.compress.config.json'
     )
@@ -8,6 +9,14 @@ function Compress-CurrentProject {
     $ErrorActionPreference = 'Stop'
 
     try {
+        if (-not (Test-Path $ConfigBase)) {
+            throw "Конфиг не найден: $ConfigBase"
+        }
+
+        $globalConfig = Get-Content $ConfigBase -Raw | ConvertFrom-Json
+        $baseArchiveDirectory = $globalConfig.CompressCurrentProject.BaseArchiveDirectory
+        $basePlaceHolders = @($globalConfig.CompressCurrentProject.PlaceHolders)
+
         $SourceDirectory = (Resolve-Path $SourceDirectory).Path
         $ConfigPath = Join-Path $SourceDirectory $ConfigFileName
 
@@ -17,14 +26,28 @@ function Compress-CurrentProject {
 
         $config = Get-Content -Path $ConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
+        $localPlaceHolders = @($config.PlaceHolders)
+
+        $mergedPlaceHolders = @(
+            $basePlaceHolders
+            $localPlaceHolders
+        ) |
+        Group-Object Name |
+        ForEach-Object {
+            $_.Group[-1]
+        }
+
         if ([string]::IsNullOrWhiteSpace($config.ArchivePath)) {
             throw "ArchivePath is not specified in config"
         }
 
-        $archivePathTemplate = Resolve-Placeholders -Text $config.ArchivePath -PlaceHolders $config.PlaceHolders
+        $archivePathTemplate = Resolve-Placeholders -Text $config.ArchivePath -PlaceHolders $mergedPlaceHolders
 
         $ArchivePath = if ([System.IO.Path]::IsPathRooted($archivePathTemplate)) {
             $archivePathTemplate
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace($baseArchiveDirectory)) {
+            Join-Path $baseArchiveDirectory $archivePathTemplate
         }
         else {
             Join-Path $SourceDirectory $archivePathTemplate
